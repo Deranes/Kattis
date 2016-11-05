@@ -14,6 +14,8 @@ int main()
 	std::cin >> n;
 
 	std::string Line;
+	std::getline( std::cin, Line );
+
 	for ( int i = 0; i < n; ++i )
 	{
 		std::getline( std::cin, Line );
