@@ -1,54 +1,122 @@
 //------------------------------------------------------
-//	Problem: https://open.kattis.com/problems/cd
-//	Author: Ola Enberg
-//	Date: 2016-11-06
+//  Problem: https://open.kattis.com/problems/cd
+//  Author: Ola Enberg
+//  Date: 2016-11-06
 //------------------------------------------------------
 
+#include <algorithm>
 #include <iostream>
+#include <malloc.h>
 #include <vector>
 
-int CalcAnswer()
+size_t CalcAnswer( size_t n, size_t m, size_t* memory )
 {
-	int n, m;
-	std::cin >> n >> m;
-
 	if ( n <= 0 || m <= 0 )
 	{
+		size_t temp;
+		for ( size_t i = 0, end = n + m; i < end; ++i )
+		{
+			scanf( "%d", &temp );
+		}
 		return 0;
 	}
 
-	std::vector<int> JacksDiscography( n );
-
-	for ( int i = 0; i < n; ++i )
+	if ( n > m )
 	{
-		std::cin >> JacksDiscography[i];
+		std::swap( n, m );
 	}
 
-	int CatalogID;
-	int ans = 0;
-	int start_n = 0;
-	for ( int i = 0; i < m; ++i )
+	size_t* JacksDiscography = memory;
+
+	for ( size_t i = 0; i < n; ++i )
 	{
-		std::cin >> CatalogID;
-		while ( CatalogID > JacksDiscography[start_n] )
+		scanf( "%d", &JacksDiscography[i] );
+	}
+
+	size_t CatalogID;
+	size_t ans = 0;
+	size_t low_n = 0;
+	size_t high_n;
+	size_t m_i;
+	for ( m_i = 0; m_i < m; ++m_i )
+	{
+		scanf( "%d", &CatalogID );
+
+		high_n = n - 1;
+
+		if ( JacksDiscography[high_n] <= CatalogID )
 		{
-			if ( ++start_n == n )
+			if ( JacksDiscography[high_n] == CatalogID )
 			{
-				return ans;
+				++ans;
 			}
+			break;
 		}
-		if ( CatalogID == JacksDiscography[start_n] )
+
+		do
 		{
-			++ans;
-		}
+			const int mid_n = low_n + ( high_n - low_n ) / 2;
+
+			if ( JacksDiscography[mid_n] > CatalogID )
+			{
+				high_n = mid_n;
+			}
+			else if ( JacksDiscography[mid_n] < CatalogID )
+			{
+				if (mid_n > low_n  )
+				{
+					low_n = mid_n;
+				}
+				else
+				{
+					if ( JacksDiscography[high_n] < CatalogID )
+					{
+						low_n = high_n;
+					}
+					else if ( JacksDiscography[high_n] == CatalogID )
+					{
+						low_n = high_n;
+						++ans;
+					}
+					break;
+				}
+			}
+			else
+			{
+				low_n = mid_n + 1;
+				++ans;
+				break;
+			}
+		} while ( high_n > low_n );
 	}
+
+	for ( ++m_i; m_i < m; ++m_i )
+	{
+		scanf( "%d", &CatalogID );
+	}
+
 	return ans;
 }
 
 int main()
 {
-	const int ans = CalcAnswer();
-	std::cout << ans << std::endl;
+	size_t* memory = new size_t[10000001];
 
-	return 0;	// EXIT_SUCCESS
+	while ( true )
+	{
+		size_t n, m;
+		scanf( "%d%d", &n, &m );
+
+		if ( n == 0 && m == 0 )
+		{
+			return 0;   // EXIT_SUCCESS
+		}
+
+		const size_t ans = CalcAnswer( n, m, memory );
+		printf( "%d\n", ans );
+	}
+
+	delete [] memory;
+
+	return 0;   // EXIT_SUCCESS
 };
